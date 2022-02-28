@@ -6,9 +6,15 @@ Jetson Xavier NX
 
 # Environment
 NVIDIA JetPack 4.6
+
 CUDA 10.2
+
 OpenCV 3.4.15
+
 TensorRT 8.0.1.6
+
 JETSON GPIO https://github.com/pjueon/JetsonGPIO
+
 Gstreamer-1.0
+
 OPENMP
