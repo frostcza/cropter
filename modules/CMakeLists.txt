@@ -1,0 +1,2 @@
+cuda_add_library(l_modules ModuleDetection.cpp ModuleGPIO.cpp ModuleRIFT.cpp ModuleCamera.cpp ModuleTemplate.cpp LiteRingBuffer.cpp)
+target_link_libraries(l_modules JetsonGPIO l_detection l_rift l_cameraIR l_cameraVI jetson-utils)

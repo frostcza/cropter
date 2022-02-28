@@ -1,0 +1,20 @@
+get_directory_property(hasParent PARENT_DIRECTORY)
+if(hasParent)
+    cuda_add_library(l_cameraIR Guide612.cpp LiteRingBuffer.cpp)
+    target_link_libraries(l_cameraIR libGuideUSB2LiveStream.a libMeasure.a ${OpenCV_LIBS} jetson-utils)
+else()
+    cmake_minimum_required(VERSION 3.10)
+    project(Guide612Test)
+    link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
+    find_library(/home/cza/jetson-inference/build/aarch64/lib NAMES jetson-utils REQUIRED)
+    find_package(CUDA REQUIRED)
+    find_package(OpenCV REQUIRED)
+
+    cuda_add_library(l_GuideCam Guide612.cpp)
+    cuda_add_library(l_LiteRingBuffer LiteRingBuffer.cpp)
+
+    cuda_add_executable(Guide612Test Guide612Test.cpp)
+
+    target_link_libraries(Guide612Test l_GuideCam l_LiteRingBuffer  libGuideUSB2LiveStream.a libMeasure.a)
+    target_link_libraries(Guide612Test ${OpenCV_LIBS} jetson-utils)
+endif()
