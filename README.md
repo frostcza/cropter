@@ -18,3 +18,6 @@ JETSON GPIO https://github.com/pjueon/JetsonGPIO
 Gstreamer-1.0
 
 OPENMP
+
+
+嘿嘿
