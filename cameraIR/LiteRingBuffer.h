@@ -29,12 +29,6 @@ public:
 
 	~LiteRingBuffer();
 
-	// wBytes <= nBytes
-	bool WriteBunk(void* src, uint32_t wBytes);
-
-	// rBytes <= nBytes
-	bool ReadBunk(void* dst, uint32_t rBytes);
-
 	// read: get the newest data buffer，获取当前可以读取的buffer地址
 	void* GetReadBuffer();
 

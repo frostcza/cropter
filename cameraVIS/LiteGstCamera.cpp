@@ -43,9 +43,8 @@ LiteGstCamera::LiteGstCamera( const videoOptions& options ) : videoSource(option
 	mAppSink   = NULL;
 	mBus       = NULL;
 	mPipeline  = NULL;	
-	mFormatYUV = IMAGE_UNKNOWN;
-	
 	mBufferManager = new gstBufferManager(&mOptions);
+	mBufferManager->mBufferRGB.SetThreaded(true);
 }
 
 
@@ -83,7 +82,11 @@ LiteGstCamera* LiteGstCamera::Create( uint32_t width, uint32_t height, const cha
 	opt.resource = camera;
 	opt.width    = width;
 	opt.height   = height;
+	opt.numBuffers = 8;
+	opt.zeroCopy = true;
+	opt.deviceType = videoOptions::DEVICE_V4L2;
 	opt.ioType   = videoOptions::INPUT;
+	opt.codec = videoOptions::CODEC_MJPEG;
 
 	if( !gstreamerInit() )
 	{
