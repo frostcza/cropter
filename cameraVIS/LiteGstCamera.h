@@ -61,8 +61,7 @@ public:
 	// 获取下一帧 返回的数据指针，格式(见imageFormat)，超时时间
 	virtual bool Capture( void** image, imageFormat format, uint64_t timeout=UINT64_MAX );
 
-	gstBufferManager* mBufferManager;
-
+	
 private:
 	static void onEOS(_GstAppSink* sink, void* user_data);
 	static GstFlowReturn onPreroll(_GstAppSink* sink, void* user_data);
@@ -80,7 +79,9 @@ private:
 	_GstElement* mPipeline;
 
 	std::string  mLaunchStr;
-
+	imageFormat  mFormatYUV;
+	
+	gstBufferManager* mBufferManager;
 };
 
 #endif

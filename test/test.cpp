@@ -48,7 +48,7 @@ void test()
 		printf("[Test] failed to initialize IR camera\n");
 		return;
 	}
-	ModuleCamera* cameraIR = new ModuleCamera(NULL, CAM_IR);
+	ModuleCamera* cameraIR = ModuleCamera::Create(NULL, CAM_IR, 8);
 
     LiteGstCamera* gstVIS = LiteGstCamera::Create(1920, 1080, "/dev/video0");
     if( !gstVIS )
@@ -56,10 +56,7 @@ void test()
 		printf("[Test] failed to initialize VIS camera\n");
 		return;
 	}
-	ModuleCamera* cameraVIS = new ModuleCamera(gstVIS, CAM_VIS);
-	
-	cameraIR->Start();
-	cameraVIS->Start();
+	ModuleCamera* cameraVIS = ModuleCamera::Create(gstVIS, CAM_VIS, 8);
 
     ModuleGPIO* gpio = new ModuleGPIO(cameraIR, cameraVIS);
 
@@ -76,7 +73,8 @@ void test()
 	std::string inference_engine = "../../detection/yolov5n.engine"; 
 	ModuleDetection* det = new ModuleDetection(inference_engine, rift);
 
-
+	cameraIR->Start();
+	cameraVIS->Start();
 	// gpio->Start();
 	rift->Start();
 
@@ -104,8 +102,12 @@ void test()
 		{
 			case IR:
 			{
-				if(!cameraIR->Read(&dummy, (void**)&frameIR, UINT64_MAX))
-				{
+				// if(!cameraIR->Read(&dummy, (void**)&frameIR, UINT64_MAX))
+				// {
+				// 	printf("[Test] Cannot get IR data\n");
+				// }
+				if(!GuideCamera::CaptureIRRGB(&dummy, &frameIR, UINT64_MAX))
+		    	{
 					printf("[Test] Cannot get IR data\n");
 				}
 				cudaResize((uchar3*)frameIR, cameraIR->GetWidth(), cameraIR->GetHeight(), (uchar3*)frameIRResized, 1280, 1024);
@@ -113,7 +115,8 @@ void test()
 				// dis->RenderImage(frameIR, GUIDE_CAM_W, GUIDE_CAM_H, IMAGE_RGB8, 0, 0);
 				dis->RenderImage(frameIRResized, 1280, 1024, IMAGE_RGB8, 0, 0);
 				dis->EndRender();
-				cameraIR->ReadFinish(frameIR);
+				// cameraIR->ReadFinish(frameIR);
+				GuideCamera::CaptureRGBFinish(frameIR);
 				break;
 			}
 			case VI:

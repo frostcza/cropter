@@ -215,8 +215,8 @@ bool GuideCamera::CaptureIRY16(void* caller, void** data, uint64_t timeout)
 	}
 
 	// wait the data is ready with timeout
-	// if( !tEvent->Wait(timeout) )
-	// 	return false;
+	if( !tEvent->Wait(timeout) )
+		return false;
 
 	// get the buffer pointer from the ringbuffer
 	void* tdata = mY16Buff->GetReadBuffer();
@@ -251,8 +251,8 @@ bool GuideCamera::CaptureIRRGB(void* caller, void** data, uint64_t timeout)
 	}
 
 	// wait the data is ready with timeout
-	// if( !tEvent->Wait(timeout) )
-	// 	return false;
+	if( !tEvent->Wait(timeout) )
+		return false;
 
 	// get the buffer pointer from the ringbuffer
 	void* tdata = mRGBBuff->GetReadBuffer();
