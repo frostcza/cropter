@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <unordered_map>
 
-// ReadWrite Lock
+// 封装pthread的读写锁
 class RWMutex
 {
 public:
@@ -25,36 +25,39 @@ private:
 class LiteRingBuffer
 {
 public:
+
+	/**
+	 * @param n 缓冲区数量
+	 * @param nBytes 缓冲区大小
+	 */
 	LiteRingBuffer(uint32_t n, size_t nBytes);
 
 	~LiteRingBuffer();
 
-	// wBytes <= nBytes
-	bool WriteBunk(void* src, uint32_t wBytes);
-
-	// rBytes <= nBytes
-	bool ReadBunk(void* dst, uint32_t rBytes);
-
-	// read: get the newest data buffer，获取当前可以读取的buffer地址
+	// 返回当前可读的buffer地址
 	void* GetReadBuffer();
 
-	// write: get a available write buffer，获取当前可以写入的buffer地址
+	// 返回当前可写的buffer地址
 	void* GetWriteBuffer();
-
-	// write or read finished, call this function to unlock
+	
+	/**
+	 * @brief 读写结束后解锁被操作的缓冲区
+	 * @param p 缓冲区指针
+	 * @param isWrite 读为false 写为true
+	 * @return 成功返回true
+	 */
 	bool GiveBack(void* const p, bool isWrite);
 
 private:
+
 	uint32_t 	mNumBuf;		//一次开辟的buffer数量，一个buffer存储一帧图像
 	size_t		mBytesBuf;		//一个buffer的大小
 	uint32_t	mLastestRead;	//目前已经读取的buffer位置
 	uint32_t	mLastestWrite;	//目前已经写入的buffer位置
 	RWMutex		mLWMutex;		// mLastestWrite Lock 
 	void**		mBuffers;		//存放每一个buffer指针的数组
-	
 	RWMutex*	mMutexs;		// locks to protect each buffer
-	
-	std::unordered_map<void*, int> mBuffTable;//键--值：buffer地址--buffer个数索引
+	std::unordered_map<void*, int> mBuffTable;//键--值：buffer地址--buffer索引
 };
 
 #endif

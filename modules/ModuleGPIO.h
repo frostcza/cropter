@@ -1,6 +1,16 @@
 #ifndef __MODULE_GPIO_H__
 #define __MODULE_GPIO_H__
 
+/* 
+ * 使用JestonGPIO库实现PWM信号的解码
+ * 遥控器E开关（三段开关）->接收机第9通道->PWM信号->Jetson NX GPIO 11号引脚
+ * 遥控器H开关（点击开关）->接收机第10通道->PWM信号->Jetson NX GPIO 12号引脚
+ * 可以从高电平持续时间中解码出三段开关状态，可以利用电平跳变检测出是否点击
+ * 受图传分辨率限制，同时在屏幕上显示IR，VI和Fused比较难，用三段开关做一个显示模式的切换
+ * 点击开关用于发送存图信号
+ * https://github.com/pjueon/JetsonGPIO
+ */
+
 #include <chrono>
 #include <thread>
 #include <queue>

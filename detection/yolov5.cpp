@@ -63,26 +63,30 @@ float Yolov5::iou(float lbox[4], float rbox[4])
     return interBoxS / (lbox[2] * lbox[3] + rbox[2] * rbox[3] - interBoxS);
 }
 
-void Yolov5::nms(std::vector<Detection>& res, float *output, float conf_thresh, float nms_thresh) 
+void Yolov5::nms(float *network_output, std::vector<Detection>& res, float conf_thresh, float nms_thresh)
 {
     int det_size = sizeof(Detection) / sizeof(float);
-    std::map<float, std::vector<Detection>> m;
-    for (int i = 0; i < output[0] && i < MAX_OUTPUT_BBOX_COUNT; i++)
+    std::map<float, std::vector<Detection>> id_detection_map;
+    for (int i = 0; i < network_output[0] && i < MAX_OUTPUT_BBOX_COUNT; i++)
     {
-        if (output[1 + det_size * i + 4] <= conf_thresh) continue;
-        Detection det;
-        memcpy(&det, &output[1 + det_size * i], det_size * sizeof(float));
-        if (m.count(det.class_id) == 0) m.emplace(det.class_id, std::vector<Detection>());
-        m[det.class_id].push_back(det);
+        // if (network_output[1 + det_size * i + 4] <= conf_thresh) continue;
+        // Detection det;
+        // memcpy(&det, &network_output[1 + det_size * i], det_size * sizeof(float));
+        // if (m.count(det.class_id) == 0) m.emplace(det.class_id, std::vector<Detection>());
+        // m[det.class_id].push_back(det);
+
+        if (network_output[1 + det_size * i + 4] <= conf_thresh) continue;
+        Detection* det = (Detection*)&network_output[1 + det_size * i];
+        id_detection_map[det->class_id].push_back(*det);
     }
-    for (auto it = m.begin(); it != m.end(); it++) 
+    for (auto it = id_detection_map.begin(); it != id_detection_map.end(); it++) 
     {
         //std::cout << it->second[0].class_id << " --- " << std::endl;
-        auto& dets = it->second;
+        std::vector<Detection> dets = it->second;
         std::sort(dets.begin(), dets.end(), cmp);
         for (size_t m = 0; m < dets.size(); ++m) 
         {
-            auto& item = dets[m];
+            Detection item = dets[m];
             res.push_back(item);
             for (size_t n = m + 1; n < dets.size(); ++n) 
             {
@@ -108,9 +112,6 @@ Yolov5::Yolov5(string engine_path)
 
 Yolov5::~Yolov5()
 {
-    // context->destroy();
-    // engine->destroy();
-    // runtime->destroy();
     SAFE_DELETE(context);
     SAFE_DELETE(engine);
     SAFE_DELETE(runtime);
@@ -126,7 +127,6 @@ Yolov5::~Yolov5()
 bool Yolov5::Init()
 {
     printf("[Yolov5] Loading detection engine ...\n");
-    // initLibNvInferPlugins(&gLogger, "");
     std::ifstream file(engine_name, std::ios::binary);
     if (!file.good()) 
     {
@@ -191,7 +191,7 @@ bool Yolov5::doInference(void* img_to_detect, int width, int height, std::vector
     // CUDA_CHECK(cudaMemcpyAsync(prob, buffers[1], OUTPUT_SIZE * sizeof(float), cudaMemcpyDeviceToHost, stream));
     // cudaStreamSynchronize(stream);
 
-    nms(det_result, prob, CONF_THRESH, NMS_THRESH);
+    nms(prob, det_result, CONF_THRESH, NMS_THRESH);
     // printf("[yolov5] detections before nms: %d, after nms: %ld.\n", (int)prob[0], det_result.size());
 
     for (size_t j = 0; j < det_result.size(); j++)
@@ -199,8 +199,5 @@ bool Yolov5::doInference(void* img_to_detect, int width, int height, std::vector
         bbox2rect(width, height, det_result[j].bbox);
     }
     return true;
-
-    // 外部调用cudaDrawLine来画框，font->OverlayText来写出label，这里不做处理
-
 }
 

@@ -1,0 +1,4 @@
+/home/cza/cropter/sht/build/CMakeFiles/edit_cache.dir
+/home/cza/cropter/sht/build/CMakeFiles/l_shtc3.dir
+/home/cza/cropter/sht/build/CMakeFiles/rebuild_cache.dir
+/home/cza/cropter/sht/build/CMakeFiles/shtc3Test.dir

@@ -26,38 +26,6 @@ LiteRingBuffer::~LiteRingBuffer()
 	free(mBuffers);
 }
 
-bool LiteRingBuffer::WriteBunk(void* src, uint32_t wBytes)
-{
-	if(!src)
-		return false;
-
-	// wBytes exceed the maximum bytes value
-	if(wBytes > mBytesBuf)
-		wBytes = mBytesBuf;
-
-	uint32_t current = (mLastestWrite + 1) % mNumBuf;
-	mMutexs[current].WLock();
-	cudaMemcpy(mBuffers[current], src, wBytes, cudaMemcpyHostToHost);
-	mLastestWrite = current;
-	mMutexs[current].Unlock();
-	return true;
-}
-
-bool LiteRingBuffer::ReadBunk(void* dst, uint32_t rBytes)
-{
-	if(!dst)
-		return false;
-
-	if(rBytes > mBytesBuf)
-		rBytes = mBytesBuf;
-
-	uint32_t current = mLastestWrite;
-	mMutexs[current].RLock();
-	cudaMemcpy(dst, mBuffers[current], rBytes, cudaMemcpyHostToHost);
-	mMutexs[current].Unlock();
-	return true;
-}
-
 void* LiteRingBuffer::GetReadBuffer()
 {
 	mLWMutex.RLock();
@@ -65,7 +33,7 @@ void* LiteRingBuffer::GetReadBuffer()
 	mLWMutex.Unlock();
 
 	if(mMutexs[current].AttempRLock())
-        {
+    {
 		return mBuffers[current];
 	}
 	// theoretically never happened

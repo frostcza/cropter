@@ -9,6 +9,7 @@
 #define TRT_NOEXCEPT noexcept
 #define TRT_CONST_ENQUEUE const
 
+// TensorRTX: https://github.com/wang-xinyu/tensorrtx/tree/master/yolov5
 
 namespace Yolo
 {

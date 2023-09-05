@@ -1,0 +1,1 @@
+/usr/bin/cc    CMakeFiles/shtc3Test.dir/shtc3_test.c.o  -o shtc3Test libl_shtc3.a 

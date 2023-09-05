@@ -8,6 +8,11 @@ class ModuleRIFT
 {
 public:
 
+    // 外部调用getTransMat()即可获取H矩阵
+    // ModuleRIFT的线程Start()之后不断计算H矩阵并setTransMat()尝试更新mtransMat
+    // setTransMat()时会调用checkTransMat()检查当前计算出的矩阵是否合理, 判断条件是根据经验设定的
+    // checkTransMat() == false时不接受新的H, getTransMat()将向外部返回mtransMatDefault, 即上一个合理的H
+
 	ModuleRIFT(ModuleCamera* IRmodule, ModuleCamera* VISmodule);
 
 	~ModuleRIFT();

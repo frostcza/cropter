@@ -290,7 +290,7 @@ cudaError_t cuda_splitZ(cufftDoubleComplex* A, double* B, double* res, size_t iW
 {
 	if( !A || !B || !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 
@@ -305,7 +305,7 @@ cudaError_t cuda_mulSpectrums(cufftDoubleComplex* A, double* B, cufftDoubleCompl
 {
 	if( !A || !B || !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 
@@ -320,7 +320,7 @@ cudaError_t cuda_padcomplex(double* A, cufftDoubleComplex* res, int iWidth, int 
 {
 	if( !A || !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 
@@ -336,7 +336,7 @@ cudaError_t cuda_calc_eo(cufftDoubleComplex* A, int iWidth, int iHeight)
 {
 	if( !A )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 
@@ -352,7 +352,7 @@ cudaError_t cuda_calc_eomag(cufftDoubleComplex* A, double* res, int iWidth, int 
 {
 	if( !A || !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 
@@ -367,7 +367,7 @@ cudaError_t cuda_self_add(double* res, double* A, int iWidth, int iHeight)
 {
 	if( !A || !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -382,7 +382,7 @@ cudaError_t cuda_self_max(double* res, double* A, int iWidth, int iHeight)
 {
 	if( !A || !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -397,7 +397,7 @@ cudaError_t cuda_copy_to(double* A, double* res, int iWidth, int iHeight)
 {
 	if( !A || !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -412,7 +412,7 @@ cudaError_t cuda_norm_orient(double* A, double* B, double epsilon, int iWidth, i
 {
 	if( !A || !B )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -427,7 +427,7 @@ cudaError_t cuda_clac_energy(double* A, double* B, double* C, double * D, double
 {
 	if( !A || !B || !C || !D || !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -441,7 +441,7 @@ cudaError_t cuda_zero(double* res,  int iWidth, int iHeight)
 {
 	if( !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -455,7 +455,7 @@ cudaError_t cuda_max_R(double* res, double noise, int iWidth, int iHeight)
 {
 	if( !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -470,7 +470,7 @@ cudaError_t cuda_calc_pc(double* sum_an,double* max_an, double* energy,double* r
 {
 	if( !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -484,7 +484,7 @@ cudaError_t cuda_calc_convx(double* pc, double angle, double* res, int iWidth, i
 {
 	if( !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -498,7 +498,7 @@ cudaError_t cuda_calc_convy(double* pc, double angle, double* res, int iWidth, i
 {
 	if( !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -514,7 +514,7 @@ cudaError_t cuda_add_convx2(double* convx, double* res,double norient, int iWidt
 {
 	if( !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -528,7 +528,7 @@ cudaError_t cuda_add_convy2(double* convy, double* res, double norient,int iWidt
 {
 	if( !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -542,7 +542,7 @@ cudaError_t cuda_add_convxy(double* convx, double* convy, double* res,double nor
 {
 	if( !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel
@@ -558,7 +558,7 @@ cudaError_t cuda_calc_M(double* convx2, double* convy2,double* convxy, double ep
 {
 	if( !res )
 		return cudaErrorInvalidDevicePointer;
-	
+
 	if( iWidth==0 || iHeight==0 )
 		return cudaErrorInvalidValue;
 	// launch kernel

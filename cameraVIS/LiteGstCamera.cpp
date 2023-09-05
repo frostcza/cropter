@@ -21,21 +21,18 @@
  */
 
 #include "LiteGstCamera.h"
-#include <jetson-utils/gstUtility.h>
-
-#include <gst/gst.h>
-#include <gst/app/gstappsink.h>
-
+#include "NvInfer.h"
 #include <sstream> 
 #include <unistd.h>
 #include <string.h>
 
+#include <gst/gst.h>
+#include <gst/app/gstappsink.h>
+
+#include <jetson-utils/gstUtility.h>
 #include <jetson-utils/cudaColorspace.h>
 #include <jetson-utils/filesystem.h>
 #include <jetson-utils/logging.h>
-
-#include "NvInfer.h"
-
 
 // constructor
 LiteGstCamera::LiteGstCamera( const videoOptions& options ) : videoSource(options)
@@ -43,35 +40,29 @@ LiteGstCamera::LiteGstCamera( const videoOptions& options ) : videoSource(option
 	mAppSink   = NULL;
 	mBus       = NULL;
 	mPipeline  = NULL;	
-	mFormatYUV = IMAGE_UNKNOWN;
-	
 	mBufferManager = new gstBufferManager(&mOptions);
+	mBufferManager->mBufferRGB.SetThreaded(true);
 }
-
 
 // destructor	
 LiteGstCamera::~LiteGstCamera()
 {
 	Close();
-
 	if( mAppSink != NULL )
 	{
 		gst_object_unref(mAppSink);
 		mAppSink = NULL;
 	}
-
 	if( mBus != NULL )
 	{
 		gst_object_unref(mBus);
 		mBus = NULL;
 	}
-
 	if( mPipeline != NULL )
 	{
 		gst_object_unref(mPipeline);
 		mPipeline = NULL;
 	}
-	
 	SAFE_DELETE(mBufferManager);
 }
 
@@ -83,7 +74,11 @@ LiteGstCamera* LiteGstCamera::Create( uint32_t width, uint32_t height, const cha
 	opt.resource = camera;
 	opt.width    = width;
 	opt.height   = height;
+	opt.numBuffers = 8;
+	opt.zeroCopy = true;
+	opt.deviceType = videoOptions::DEVICE_V4L2;
 	opt.ioType   = videoOptions::INPUT;
+	opt.codec = videoOptions::CODEC_MJPEG;
 
 	if( !gstreamerInit() )
 	{
@@ -111,6 +106,7 @@ bool LiteGstCamera::init(uint32_t width, uint32_t height)
 {
 	GError* err = NULL;
 
+	// init launch str
 	std::ostringstream ss;
     ss << "v4l2src device=/dev/video0 ! image/jpeg, width="<<width<<", hight="<<height<<", framerate=30/1 ! jpegdec ! video/x-raw ! appsink name=mysink";  
 	mLaunchStr = ss.str();
@@ -119,7 +115,6 @@ bool LiteGstCamera::init(uint32_t width, uint32_t height)
 
 	// launch pipeline
 	mPipeline = gst_parse_launch(mLaunchStr.c_str(), &err);
-
 	if( err != NULL )
 	{
 		LogError(LOG_GSTREAMER "LiteGstCamera failed to create pipeline\n");
@@ -129,7 +124,6 @@ bool LiteGstCamera::init(uint32_t width, uint32_t height)
 	}
 
 	GstPipeline* pipeline = GST_PIPELINE(mPipeline);
-
 	if( !pipeline )
 	{
 		LogError(LOG_GSTREAMER "LiteGstCamera failed to cast GstElement into GstPipeline\n");
@@ -137,37 +131,29 @@ bool LiteGstCamera::init(uint32_t width, uint32_t height)
 	}	
 
 	// retrieve pipeline bus
-	/*GstBus**/ mBus = gst_pipeline_get_bus(pipeline);
-
+	mBus = gst_pipeline_get_bus(pipeline);
 	if( !mBus )
 	{
 		LogError(LOG_GSTREAMER "LiteGstCamera failed to retrieve GstBus from pipeline\n");
 		return false;
 	}
 
-	// add watch for messages (disabled when we poll the bus ourselves, instead of gmainloop)
-	//gst_bus_add_watch(mBus, (GstBusFunc)gst_message_print, NULL);
-
 	// get the appsrc
 	GstElement* appsinkElement = gst_bin_get_by_name(GST_BIN(pipeline), "mysink");
 	GstAppSink* appsink = GST_APP_SINK(appsinkElement);
-
 	if( !appsinkElement || !appsink)
 	{
 		LogError(LOG_GSTREAMER "LiteGstCamera failed to retrieve AppSink element from pipeline\n");
 		return false;
 	}
-	
 	mAppSink = appsink;
 	
 	// setup callbacks
 	GstAppSinkCallbacks cb;
 	memset(&cb, 0, sizeof(GstAppSinkCallbacks));
-	
 	cb.eos         = onEOS;
 	cb.new_preroll = onPreroll;
 	cb.new_sample  = onBuffer;
-	
 	gst_app_sink_set_callbacks(mAppSink, &cb, (void*)this, NULL);
 	
 	// disable looping for cameras
@@ -289,22 +275,7 @@ bool LiteGstCamera::Open()
 	
 	const GstStateChangeReturn result = gst_element_set_state(mPipeline, GST_STATE_PLAYING);
 
-	if( result == GST_STATE_CHANGE_ASYNC )
-	{
-#if 0
-		GstMessage* asyncMsg = gst_bus_timed_pop_filtered(mBus, 5 * GST_SECOND, 
-    	 					      (GstMessageType)(GST_MESSAGE_ASYNC_DONE|GST_MESSAGE_ERROR)); 
-
-		if( asyncMsg != NULL )
-		{
-			gst_message_print(mBus, asyncMsg, this);
-			gst_message_unref(asyncMsg);
-		}
-		else
-			printf(LOG_GSTREAMER "LiteGstCamera NULL message after transitioning pipeline to PLAYING...\n");
-#endif
-	}
-	else if( result != GST_STATE_CHANGE_SUCCESS )
+	if( result != GST_STATE_CHANGE_SUCCESS && result != GST_STATE_CHANGE_ASYNC)
 	{
 		LogError(LOG_GSTREAMER "LiteGstCamera failed to set pipeline state to PLAYING (error %u)\n", result);
 		return false;

@@ -14,7 +14,7 @@ using namespace std;
 
 /* RIFT配准主要步骤：
  * phase congruency 相位一致性 计算PC图，得到类似边缘检测的结果
- * FAST dectector 提取特特征点，边缘图->特征点的x,y坐标
+ * FAST dectector 提取特征点，边缘图->特征点的x,y坐标
  * RIFT descriptor 描述子，每个特征点对应一个特征向量
  * BFmatcher 用暴力算法求解匹配，计算两个图中所有特征点之间的欧氏距离，取距离最小的
  * RANSAC 假设两图符合单应变换模型，利用RANSAC进行误匹配剔除，得到最优的变换矩阵H
@@ -24,7 +24,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	RIFT rift(4, 6, 96, 5, 1.0f, cv::Size(640,512));
+	RIFT rift(4, 6, 96, 5, cv::Size(640,512));
 	for (int i=1;i<20;i++)
 	{
 		printf("pic num: %d\n", i);

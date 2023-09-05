@@ -1,0 +1,2 @@
+/usr/bin/ar qc libl_GuideCam.a  CMakeFiles/l_GuideCam.dir/Guide612.cpp.o
+/usr/bin/ranlib libl_GuideCam.a

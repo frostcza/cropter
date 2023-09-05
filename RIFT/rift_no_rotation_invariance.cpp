@@ -28,12 +28,11 @@ struct KeypointResponseGreater
 //     return (fir.response > sec.response);  //from high value to low value
 // }
 
-RIFT::RIFT(int _s, int _o, int _patch_size, int _thre, float _RATIO, cv::Size img_size){
+RIFT::RIFT(int _s, int _o, int _patch_size, int _thre, cv::Size img_size){
     s = _s;
     o = _o;
     patch_size = _patch_size;
     thre = _thre;
-    RATIO = _RATIO;
     pc.Init(img_size, s, o);
 }
 
@@ -375,9 +374,28 @@ cv::Mat RIFT::CalcMatch(cv::Mat& des_m1, cv::Mat& des_m2, std::vector<cv::KeyPoi
 
     std::vector<char> matchesMask(matches.size(), 0); //作为内点标记使用，1表示内点
     cv::Mat H;
-	H = cv::findHomography(matchedPoints1, matchedPoints2, cv::RANSAC, 3, matchesMask, 2000); //计算单应矩阵，其中包含RANSAC
+	// H = cv::findHomography(matchedPoints1, matchedPoints2, cv::RANSAC, 3, matchesMask, 2000); //计算单应矩阵，其中包含RANSAC
+
     // 适当减少RANSAC迭代次数可节省大量时间
     // H = cv::findHomography(matchedPoints1, matchedPoints2, cv::RANSAC, 3, matchesMask, 10000);
+
+    // use affine
+    H = cv::Mat::zeros(3, 3, CV_64F);
+    if(matchedPoints1.size() == 0 || matchedPoints2.size() == 0)
+    {
+        H.at<double>(0,0) = 1.15; H.at<double>(0,1) = 0.0; H.at<double>(0,2) = 48;
+        H.at<double>(1,0) = 0.0; H.at<double>(1,1) = 1.25; H.at<double>(1,2) = -45;
+    }
+    else
+    {
+        cv::Mat affine = cv::estimateAffine2D(matchedPoints1, matchedPoints2);
+        affine.row(0).copyTo(H.row(0));
+        affine.row(1).copyTo(H.row(1));
+    }
+
+    H.at<double>(2,0) = 0.0;
+    H.at<double>(2,1) = 0.0;
+    H.at<double>(2,2) = 1.0;
 
     // printf("homography matrix\n");
     // for (int i=0; i<3; i++)

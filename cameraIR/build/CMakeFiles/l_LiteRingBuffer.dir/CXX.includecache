@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/cza/cropter/cameraIR/LiteRingBuffer.cpp
+jetson-utils/cudaMappedMemory.h
+-
+LiteRingBuffer.h
+/home/cza/cropter/cameraIR/LiteRingBuffer.h
+
+/home/cza/cropter/cameraIR/LiteRingBuffer.h
+stdint.h
+-
+stdio.h
+-
+pthread.h
+-
+stdlib.h
+-
+unordered_map
+-
+

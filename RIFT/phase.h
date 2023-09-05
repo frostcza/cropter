@@ -11,15 +11,21 @@
 #include <cuComplex.h>
 #include "cudaFunc.h"
 
-//yjt daima
+
 class PhaseCongruency
 {
 public:
     // PhaseCongruency(cv::Size _img_size, size_t _nscale, size_t _norient);
     PhaseCongruency();
-    ~PhaseCongruency() {}
+    ~PhaseCongruency() { DeInit(); } 
     void Init(cv::Size _img_size, size_t _nscale, size_t _norient);
+    void DeInit();
     // void calc_eo(cv::InputArray _src);
+
+    /**
+	 * @brief 进行相位一致性图的计算, 结果包括eo和maxMoment, 包含CUDA操作
+     * @param _src 待计算图像, cv::Mat格式
+	 */
     void cudatest(cv::InputArray _src);
     std::vector<cv::Mat> eo;
     cv::Mat maxMoment;

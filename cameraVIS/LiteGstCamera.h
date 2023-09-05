@@ -43,33 +43,34 @@ class LiteGstCamera : public videoSource
 {
 public:
 
-	// Create函数内会对LiteGstCamera类进行实例化，设置好相关参数并返回实例的指针
-	static LiteGstCamera* Create( uint32_t width, uint32_t height, const char* camera=NULL );
+	// Create内会调LiteGstCamera构造函数，设置好相关参数并返回对象的指针
+	static LiteGstCamera* Create( uint32_t width, uint32_t height, const char* camera = NULL );
 	
 	// 释放所有资源
 	~LiteGstCamera();
-
-	// 打开视频流，在Capture()之前必须先调用Open()
-	virtual bool Open();
-
-	// 关闭视频流，析构函数会调用Close()
-	virtual void Close();
-
-	// 获取下一帧
-	template<typename T> bool Capture( T** image, uint64_t timeout=UINT64_MAX )		{ return Capture((void**)image, imageFormatFromType<T>(), timeout); }
-
-	// 获取下一帧 返回的数据指针，格式(见imageFormat)，超时时间
-	virtual bool Capture( void** image, imageFormat format, uint64_t timeout=UINT64_MAX );
-
 	
+	/**
+	 * @brief 获取可见光相机的下一帧
+	 * @param image RGB数据的二级指针
+	 * @param format 数据格式 目前是IMAGE_RGB8
+	 * @param timeout 超时等待时间
+	 * @return 成功时返回true
+	 */
+	virtual bool Capture( void** image, imageFormat format, uint64_t timeout = UINT64_MAX );
+
+	virtual bool Open(); // 打开视频流, Capture()内会调Open()
+	virtual void Close(); // 关闭视频流, 析构函数会调用Close()
+
+	gstBufferManager* mBufferManager;
+
 private:
+
+	LiteGstCamera( const videoOptions& options );
+	bool init(uint32_t width, uint32_t height);
+
 	static void onEOS(_GstAppSink* sink, void* user_data);
 	static GstFlowReturn onPreroll(_GstAppSink* sink, void* user_data);
 	static GstFlowReturn onBuffer(_GstAppSink* sink, void* user_data);
-
-	LiteGstCamera( const videoOptions& options );
-
-	bool init(uint32_t width, uint32_t height);
 
 	void checkMsgBus();
 	void checkBuffer();
@@ -77,11 +78,8 @@ private:
 	_GstBus*     mBus;
 	_GstAppSink* mAppSink;
 	_GstElement* mPipeline;
-
 	std::string  mLaunchStr;
-	imageFormat  mFormatYUV;
-	
-	gstBufferManager* mBufferManager;
+
 };
 
 #endif

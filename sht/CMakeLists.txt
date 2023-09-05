@@ -1,0 +1,11 @@
+get_directory_property(hasParent PARENT_DIRECTORY)
+if(hasParent)
+    cuda_add_library(l_shtc3 sensirion_common.c shtc3.c sensirion_i2c.c)
+else()
+    cmake_minimum_required(VERSION 3.10)
+    project(sht)
+    add_library(l_shtc3 sensirion_common.c shtc3.c sensirion_i2c.c)
+    add_executable(shtc3Test shtc3_test.c)
+    target_link_libraries(shtc3Test l_shtc3)
+    
+endif()

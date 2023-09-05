@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/cza/cropter/sht/sensirion_arch_config.h
+stdlib.h
+-
+stdint.h
+-
+stdbool.h
+-
+
+/home/cza/cropter/sht/sensirion_i2c.h
+sensirion_arch_config.h
+/home/cza/cropter/sht/sensirion_arch_config.h
+
+/home/cza/cropter/sht/shtc3.h
+sensirion_arch_config.h
+/home/cza/cropter/sht/sensirion_arch_config.h
+sensirion_i2c.h
+/home/cza/cropter/sht/sensirion_i2c.h
+
+/home/cza/cropter/sht/shtc3_test.c
+stdio.h
+-
+shtc3.h
+/home/cza/cropter/sht/shtc3.h
+

@@ -7,6 +7,8 @@
 #include <sys/time.h>
 #include <JetsonGPIO.h>
 
+/* It's just a test! The major functions are migrated to ModuleGPIO */
+
 enum mode { IR = 0, VI = 1, Fuse = 2, Unknown = 3 };
 static bool end_this_program = false;
 void signalHandler(int s) { end_this_program = true; }

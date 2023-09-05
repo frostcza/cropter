@@ -1,0 +1,5 @@
+/home/cza/cropter/cameraIR/build/CMakeFiles/rebuild_cache.dir
+/home/cza/cropter/cameraIR/build/CMakeFiles/edit_cache.dir
+/home/cza/cropter/cameraIR/build/CMakeFiles/l_GuideCam.dir
+/home/cza/cropter/cameraIR/build/CMakeFiles/Guide612Test.dir
+/home/cza/cropter/cameraIR/build/CMakeFiles/l_LiteRingBuffer.dir

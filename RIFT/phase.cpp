@@ -109,8 +109,8 @@ void PhaseCongruency::Init(cv::Size _size, size_t _nscale, size_t _norient)
             cuda_mulSpectrums(odata,filter_gpu[nscale * o + scale],filtered_gpu[nscale * o + scale],dft_N,dft_M);
             cufftExecZ2Z(plan_inverse,(cufftDoubleComplex *)filtered_gpu[nscale * o + scale],(cufftDoubleComplex *)ifft_img_gpu[nscale * o + scale],CUFFT_INVERSE);    
             cuda_calc_eo(ifft_img_gpu[nscale * o + scale],dft_N,dft_M);
-            cudaDeviceSynchronize();
-            cudaDeviceSynchronize();
+            // cudaDeviceSynchronize();
+            // cudaDeviceSynchronize();
             cuda_calc_eomag(ifft_img_gpu[nscale * o + scale],An[nscale * o + scale],dft_N,dft_M);
             cudaDeviceSynchronize();
             eo[nscale * o + scale] =cv::Mat(dft_M,dft_N,CV_64F, (double*)An[nscale * o + scale]);
@@ -145,7 +145,7 @@ void PhaseCongruency::Init(cv::Size _size, size_t _nscale, size_t _norient)
         } 
         cuda_max_R(energy,noise,dft_N,dft_M);
         cuda_calc_pc(sum_an,max_an,energy,pc_gpu[o],cutOff,g,epsilon,nscale,dft_N,dft_M);
-        cudaDeviceSynchronize();
+        // cudaDeviceSynchronize();
     }// for o
     cuda_zero(convx2,dft_N,dft_M);
     cuda_zero(convy2,dft_N,dft_M);
@@ -160,9 +160,9 @@ void PhaseCongruency::Init(cv::Size _size, size_t _nscale, size_t _norient)
         cuda_add_convy2(convy,convy2,norient,dft_N,dft_M);
         cuda_add_convxy(convx,convy,convxy,norient,dft_N,dft_M);
     } 
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
     cuda_calc_M(convx2,convy2,convxy,epsilon,Max_moment,dft_N,dft_M);
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
     gettimeofday(&e1, NULL);
     double timeUsed;
     timeUsed = 1000000 * (e1.tv_sec - s1.tv_sec) + e1.tv_usec - s1.tv_usec;
@@ -268,6 +268,38 @@ void PhaseCongruency::Init(cv::Size _size, size_t _nscale, size_t _norient)
 }
 
 
+//和初始化对应
+void PhaseCongruency::DeInit(){
+    free(filter_host);
+    free(filter_gpu);
+    free(filtered_gpu);
+    free(ifft_img_gpu);
+    free(An);
+    free(An_cpu);
+    free(host_data);
+    cudaFree(idata);
+    cudaFree(odata);
+    cudaFree(img_complex_gpu);
+    cudaFree(sum_re);
+    cudaFree(sum_im);
+    cudaFree(sum_an);
+    cudaFree(max_an);
+    cudaFree(complex0);
+    cudaFree(complex1);
+    cudaFree(energy);
+    cudaFree(convx);
+    cudaFree(convy);
+    cudaFree(convx2);
+    cudaFree(convy2);
+    cudaFree(convxy);
+    cudaFree(Max_moment);
+    free(pc_gpu);
+    //指针置空
+    filter_host=nullptr; filter_gpu=nullptr;filtered_gpu=nullptr; ifft_img_gpu=nullptr; An=nullptr;
+    An_cpu=nullptr; host_data=nullptr; idata=nullptr;odata=nullptr;img_complex_gpu=nullptr;
+    sum_re=nullptr; sum_im=nullptr;sum_an=nullptr;max_an=nullptr;complex0=nullptr;complex1=nullptr;
+    energy=nullptr;convx=nullptr;convy=nullptr;convx2=nullptr;convy2=nullptr;convxy=nullptr;Max_moment=nullptr;pc_gpu=nullptr;   
+}
 
 
 //cuda 代码 多线程 经过测试 多线程不能够对gpu加速 因此不使用多线程
@@ -312,44 +344,46 @@ void PhaseCongruency::cudatest(cv::InputArray _src) {
         for (unsigned int scale = 0; scale < nscale; scale++)
         {
             cuda_mulSpectrums(odata,filter_gpu[nscale * o + scale],filtered_gpu[nscale * o + scale],NY,NX);
-            
+            cufftExecZ2Z(plan_inverse,(cufftDoubleComplex *)filtered_gpu[nscale * o + scale],(cufftDoubleComplex *)ifft_img_gpu[nscale * o + scale],CUFFT_INVERSE);
+            cuda_calc_eo(ifft_img_gpu[nscale * o + scale],NY,NX);      
+            cuda_calc_eomag(ifft_img_gpu[nscale * o + scale],An[nscale * o + scale],NY,NX);
         }
            
     }
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
 
-    for (unsigned int o = 0; o < norient; o++)
-    {      
-        for (unsigned int scale = 0; scale < nscale; scale++)
-        {           
-            cufftExecZ2Z(plan_inverse,(cufftDoubleComplex *)filtered_gpu[nscale * o + scale],(cufftDoubleComplex *)ifft_img_gpu[nscale * o + scale],CUFFT_INVERSE);  
+    // for (unsigned int o = 0; o < norient; o++)
+    // {      
+    //     for (unsigned int scale = 0; scale < nscale; scale++)
+    //     {           
+    //         cufftExecZ2Z(plan_inverse,(cufftDoubleComplex *)filtered_gpu[nscale * o + scale],(cufftDoubleComplex *)ifft_img_gpu[nscale * o + scale],CUFFT_INVERSE);  
     
 
-        }
+    //     }
            
-    }
-    cudaDeviceSynchronize();
+    // }
+    // cudaDeviceSynchronize();
 
-    for (unsigned int o = 0; o < norient; o++)
-    {      
-        for (unsigned int scale = 0; scale < nscale; scale++)
-        {     
-            cuda_calc_eo(ifft_img_gpu[nscale * o + scale],NY,NX);      
+    // for (unsigned int o = 0; o < norient; o++)
+    // {      
+    //     for (unsigned int scale = 0; scale < nscale; scale++)
+    //     {     
+    //         cuda_calc_eo(ifft_img_gpu[nscale * o + scale],NY,NX);      
            
-        }
+    //     }
            
-    }
-    cudaDeviceSynchronize();
-    for (unsigned int o = 0; o < norient; o++)
-    {      
-        for (unsigned int scale = 0; scale < nscale; scale++)
-        {     
-            cuda_calc_eomag(ifft_img_gpu[nscale * o + scale],An[nscale * o + scale],NY,NX);    
+    // }
+    // cudaDeviceSynchronize();
+    // for (unsigned int o = 0; o < norient; o++)
+    // {      
+    //     for (unsigned int scale = 0; scale < nscale; scale++)
+    //     {     
+    //         cuda_calc_eomag(ifft_img_gpu[nscale * o + scale],An[nscale * o + scale],NY,NX);    
            
-        }
+    //     }
            
-    }
-    cudaDeviceSynchronize(); 
+    // }
+    // cudaDeviceSynchronize(); 
 
     for (unsigned int o = 0; o < norient; o++)
     {      
@@ -358,7 +392,9 @@ void PhaseCongruency::cudatest(cv::InputArray _src) {
             
             cudaDeviceSynchronize();          
             //转为本地 此时 eo是eo_mag
-            eo[nscale * o + scale] =cv::Mat(NX,NY,CV_64F, (double*)An[nscale * o + scale]);
+            cv::Mat eo_padded = cv::Mat(NX,NY,CV_64F, (double*)An[nscale * o + scale]);
+            eo[nscale * o + scale] = eo_padded(cv::Range(0, height),cv::Range(0, width));
+            // eo[nscale * o + scale] = cv::Mat(NX,NY,CV_64F, (double*)An[nscale * o + scale]);
             if(scale==0){
                 //计算noise 正确
                 auto tau = mean(eo[nscale * o + scale]);

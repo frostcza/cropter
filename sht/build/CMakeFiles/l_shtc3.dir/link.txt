@@ -1,0 +1,2 @@
+/usr/bin/ar qc libl_shtc3.a  CMakeFiles/l_shtc3.dir/sensirion_common.c.o CMakeFiles/l_shtc3.dir/shtc3.c.o CMakeFiles/l_shtc3.dir/sensirion_i2c.c.o
+/usr/bin/ranlib libl_shtc3.a
