@@ -58,17 +58,23 @@ Integrate::~Integrate()
     }
 
 	// Release resources
+    SAFE_DELETE(fusion);
 	SAFE_DELETE(cameraVIS);
 	SAFE_DELETE(gpio);
     SAFE_DELETE(i2c);
     SAFE_DELETE(gstVIS);
-	SAFE_DELETE(rift)
-	SAFE_DELETE(det)
+	SAFE_DELETE(rift);
+	SAFE_DELETE(det);
+
 	SAFE_DELETE(dis);
 	GuideCamera::DeInit();
 
     CUDA_FREE_HOST(frameVISDetected);
     CUDA_FREE_HOST(frameFused);
+
+    CUDA_FREE_HOST(frameVISSmall);
+    CUDA_FREE_HOST(frameIRWarp);
+
     if(mOption.shrink_picture)
     {
         CUDA_FREE_HOST(frameVISDetectedSmall);
@@ -105,6 +111,9 @@ void Integrate::MemoryAlloc()
 	frameVIS = NULL;
     frameY16 = NULL;
 
+    frameVISSmall = NULL;
+    frameIRWarp = NULL;
+
     frameFused = NULL;
     frameFusedLarge = NULL;
 
@@ -119,7 +128,8 @@ void Integrate::MemoryAlloc()
 
     cudaAllocMapped(&frameVISDetected, cameraVIS_W*cameraVIS_H*sizeof(uchar3));
     cudaAllocMapped(&frameFused, BYTES_RGB);
-	
+	cudaAllocMapped(&frameVISSmall, BYTES_RGB);
+    cudaAllocMapped(&frameIRWarp, BYTES_RGB);
 
     if(mOption.shrink_picture)
     {
@@ -171,7 +181,10 @@ bool Integrate::Init()
 	rift->Start();
 
     // Detection and YOLOv5
-	det = new ModuleDetection(inference_engine, rift);
+	det = new ModuleDetection(detection_engine, rift);
+
+    // Fusion
+    fusion = new ModuleFusion(Precision::INT8);
 
     // Display
     dis = glDisplay::Create(NULL, cameraVIS_W, cameraVIS_H);
@@ -234,22 +247,20 @@ void Integrate::mainLoop()
             det->doInference(frameVIS, cameraVIS_W, cameraVIS_H, det->mRes);
             det->getMaxTemper(frameIR, (short*)frameY16, cameraVIS_W, cameraVIS_H, false); // 20ms
             imIR = cv::Mat(cameraIR_H, cameraIR_W, CV_8UC3, frameIR);
-            imVIS = cv::Mat(cameraVIS_H, cameraVIS_W, CV_8UC3, frameVIS).clone();
-            cv::resize(imVIS, imVIS, imIR.size(), 0, 0, cv::INTER_NEAREST);
             Homography = rift->getTransMat(); // 2ms
             cv::warpPerspective(imIR, imIRWarp, Homography, imIR.size(), cv::INTER_NEAREST); // 1~2ms
-            // imFused = cv::Mat(cameraIR_H, cameraIR_W, CV_8UC3, frameFused);
+
+            /* old fusion
+            imVIS = cv::Mat(cameraVIS_H, cameraVIS_W, CV_8UC3, frameVIS).clone();
+            cv::resize(imVIS, imVIS, imIR.size(), 0, 0, cv::INTER_NEAREST);
             cv::addWeighted(imVIS, 0.5, imIRWarp, 0.5, 0.0, imFused); // 1ms
             cudaMemcpy(frameFused, imFused.data, BYTES_RGB, cudaMemcpyHostToHost);
+            */
 
-            // // use fusion rule
-            // cv::cvtColor(imVIS,imVIS,cv::COLOR_RGB2YCrCb);
-            // cv::cvtColor(imIRWarp,imIRWarp,cv::COLOR_RGB2YCrCb);
-            // split(imVIS,imVISSplit);
-            // split(imIRWarp,imIRWarpSplit);
-            // imVISSplit[0] = 0.4 * imVISSplit[0] + 0.6 * imIRWarpSplit[0];
-            // merge(imVISSplit, 3, imFused);
-            // cv::cvtColor(imFused, imFused, cv::COLOR_YCrCb2RGB); // 3ms
+            /* new fusion */
+            cudaMemcpyAsync(frameIRWarp, imIRWarp.data, BYTES_RGB, cudaMemcpyHostToHost);
+            cudaResize((uchar3*)frameVIS, cameraVIS_W, cameraVIS_H, (uchar3*)frameVISSmall, cameraIR_W, cameraIR_H);
+            fusion->Fuse((uchar3*)frameIRWarp, (uchar3*)frameVISSmall, frameFused);
 
             dis->BeginRender();
             if(mOption.shrink_picture)

@@ -39,10 +39,10 @@ int main(int argc, char* argv[])
 		// float transMat[3][3] = { 1.1296997, 0.085535482, -45.325115, -0.082875229, 1.1487563, -16.153873,0,0,1 };
 		float transMat[3][3];
 
-		// MyTime::tic();
+		MyTime::tic();
 		cv::resize(im2, im2, im1.size());
     	rift.Inference(im1, im2, transMat, i);
-		// MyTime::toc("RIFT total");
+		MyTime::toc("RIFT total");
 
 
 		// Homography matrix evaluation: reject wrong result according to experience

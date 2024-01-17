@@ -5,6 +5,7 @@
 #include "modules/ModuleGPIO.h"
 #include "modules/ModuleRIFT.h"
 #include "modules/ModuleDetection.h"
+#include "modules/ModuleFusion.h"
 #include "modules/ModuleI2C.h"
 #include "cameraIR/Guide612.h"
 #include <jetson-utils/glDisplay.h>
@@ -49,6 +50,7 @@ private:
     ModuleCamera* cameraVIS;
     ModuleRIFT* rift;
     ModuleDetection* det;
+    ModuleFusion* fusion;
     ModuleI2C* i2c;
 
     const int cameraVIS_W = 1920;
@@ -56,7 +58,7 @@ private:
     const int cameraIR_W = GUIDE_CAM_W;
     const int cameraIR_H = GUIDE_CAM_H;
 
-    const std::string inference_engine = "../../detection/yolov5n.engine";
+    const std::string detection_engine = "../../detection/yolov5n.engine";
 
     cv::Mat Homography;
 	cv::Mat imIR;
@@ -69,6 +71,9 @@ private:
     void* frameIR;
 	void* frameVIS;
     void* frameY16;
+
+    void* frameVISSmall;
+    void* frameIRWarp;
 
     void* frameFused;
     void* frameFusedLarge;

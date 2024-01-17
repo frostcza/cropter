@@ -381,21 +381,32 @@ cv::Mat RIFT::CalcMatch(cv::Mat& des_m1, cv::Mat& des_m2, std::vector<cv::KeyPoi
 
     // use affine
     H = cv::Mat::zeros(3, 3, CV_64F);
+    bool use_default = false;
     if(matchedPoints1.size() == 0 || matchedPoints2.size() == 0)
     {
-        H.at<double>(0,0) = 1.15; H.at<double>(0,1) = 0.0; H.at<double>(0,2) = 48;
-        H.at<double>(1,0) = 0.0; H.at<double>(1,1) = 1.25; H.at<double>(1,2) = -45;
+        use_default = true;
     }
     else
     {
         cv::Mat affine = cv::estimateAffine2D(matchedPoints1, matchedPoints2);
-        affine.row(0).copyTo(H.row(0));
-        affine.row(1).copyTo(H.row(1));
+        if(affine.empty())
+        {
+            use_default = true;
+        }
+        else
+        {
+            affine.row(0).copyTo(H.row(0));
+            affine.row(1).copyTo(H.row(1));
+        }
     }
 
-    H.at<double>(2,0) = 0.0;
-    H.at<double>(2,1) = 0.0;
-    H.at<double>(2,2) = 1.0;
+    if(use_default)
+    {
+        H.at<double>(0,0) = 1.15; H.at<double>(0,1) = 0.0; H.at<double>(0,2) = 48;
+        H.at<double>(1,0) = 0.0; H.at<double>(1,1) = 1.25; H.at<double>(1,2) = -45;
+    }
+
+    H.at<double>(2,0) = 0.0; H.at<double>(2,1) = 0.0; H.at<double>(2,2) = 1.0;
 
     // printf("homography matrix\n");
     // for (int i=0; i<3; i++)

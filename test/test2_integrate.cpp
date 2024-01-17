@@ -34,7 +34,7 @@ void test()
 {
 	RunOption opt;
 	opt.use_GPIO = false;
-	opt.shrink_picture = true;
+	opt.shrink_picture = false;
 	Integrate* integrate = new Integrate(opt); 
 
 	// The main cycle

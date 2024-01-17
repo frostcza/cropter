@@ -1,0 +1,16 @@
+get_directory_property(hasParent PARENT_DIRECTORY)
+if(hasParent)
+    cuda_add_library(l_fusion IFCNN.cpp myCudaConvert.cu)
+    target_link_libraries(l_fusion nvinfer cudart)
+else()
+    cmake_minimum_required(VERSION 3.10)
+    project(ifcnn_demo)
+    find_library(/home/cza/jetson-inference/build/aarch64/lib NAMES jetson-utils REQUIRED)
+    find_package(CUDA REQUIRED)
+    link_directories(/usr/local/cuda/lib64)
+
+    cuda_add_library(l_fusion IFCNN.cpp myCudaConvert.cu)
+    cuda_add_executable(ifcnn_demo IFCNN_demo.cpp)
+    target_link_libraries(ifcnn_demo l_fusion jetson-utils nvinfer cudart)
+
+endif()

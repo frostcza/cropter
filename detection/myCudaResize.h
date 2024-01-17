@@ -1,5 +1,5 @@
 #ifndef __MY_CUDA_RESIZE_H__
-#define __MY_CUDA_RESIZE_H__
+#define __MY_CUDA_RESIZE_H__ 
 
 #include <jetson-utils/cudaUtility.h>
 
@@ -12,5 +12,6 @@ cudaError_t cudaResizeNoStretch( uchar3* input, size_t inputWidth, size_t inputH
 // Normalize IMAGE_RGB32F(0, 255) to (0.0f, 1.0f)
 // Then change the data form Packed mode to Planner mode (rgbrgbrgbrgb --> rrrrggggbbbb)
 cudaError_t cudaPacked2Planner(float3* input, size_t width, size_t height, float* output);
+
 
 #endif
