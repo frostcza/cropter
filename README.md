@@ -5,7 +5,7 @@
 
 ### 硬件平台搭建和设计
 
-硬件连接方案总体设计图：
+硬件连接方案总体设计图如下：
 
 <img src="./readme_imgs/硬件连接方案.png" style="zoom:70%">
 
@@ -102,9 +102,4 @@ YOLO作为一种端到端的基于深度学习的目标检测算法，相对于�
 
 <img src="./readme_imgs/温度校正.png" style="zoom:70%">
 
-在无人机平台上，搭载嵌入式板显示结果：
-
-<img src="./readme_imgs/无人机搭载.png" style="zoom:20%">
-
-<img src="./readme_imgs/无人机效果图.png" style="zoom:70%">
-
+在�
